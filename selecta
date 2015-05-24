@@ -147,8 +147,8 @@ class Selecta
   class Abort < RuntimeError; end
 end
 
-class Configuration < Struct.new(:visible_choices, :initial_search, :choices)
-  def initialize(visible_choices, initialize, choices)
+class Configuration < Struct.new(:visible_choices, :initial_search, :passthrough, :choices)
+  def initialize(visible_choices, initialize, passthrough, choices)
     # Constructor is defined to force argument presence; otherwise Struct
     # defaults missing arguments to nil
     super
@@ -159,7 +159,7 @@ class Configuration < Struct.new(:visible_choices, :initial_search, :choices)
     visible_choices = [20, screen_height - 1].min
 
     choices = massage_choices(choices)
-    Configuration.new(visible_choices, options.fetch(:search), choices)
+    Configuration.new(visible_choices, options.fetch(:search), options.fetch(:passthrough), choices)
   end
 
   def self.default_options
@@ -185,6 +185,11 @@ class Configuration < Struct.new(:visible_choices, :initial_search, :choices)
       options[:search] = ""
       opts.on("-s", "--search SEARCH", "Specify an initial search string") do |search|
         options[:search] = search
+      end
+
+      options[:passthrough] = false
+      opts.on("-p", "--passthrough", "Pass user input through if no choices match") do
+        options[:passthrough] = true
       end
     end
 
@@ -276,7 +281,7 @@ class Search
     if @aborted
       NoSelection
     else
-      match = best_matches.fetch(@index) { NoSelection }
+      match = best_matches.fetch(@index) { config.passthrough ? Match.trivial(query) : NoSelection }
       if match == NoSelection
         match
       else

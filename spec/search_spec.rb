@@ -125,6 +125,12 @@ describe Search do
         "spec/search_spec.rb"
       ]
     end
+
+    xit "passes input through if told to" do
+      # config = Configuration.from_inputs(["a", "b"], {passthrough: true})
+      # search = Search.from_config(config)
+      # expect(search.append_search_string("c").best_matches.map(&:choice)).to eq [
+    end
   end
 
   it "knows when it's done" do
