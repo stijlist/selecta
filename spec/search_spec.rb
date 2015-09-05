@@ -24,10 +24,15 @@ describe Search do
       end
 
       it "loops around when reaching the visible choice limit" do
-        config = Configuration.new(2, "", ["one", "two", "three"])
+        config = Configuration.new(2, "", false, false, ["one", "two", "three"])
         search = Search.from_config(config)
         expect(search.down.down.down.selection).to eq "two"
       end
+      
+      # context "when the --scrolloff flag is set" do
+        # let(:config) { Configuration.from_inputs(["one", "two", "three"],
+                                                 # ["--scrolloff"]) }
+      # end
 
       describe "filtered search results" do
         it "moves up and down the list" do
@@ -53,7 +58,7 @@ describe Search do
     end
 
     describe "initial search string" do
-      let(:config) { Configuration.new(2, "thr", ["one", "two", "three"]) }
+      let(:config) { Configuration.new(2, "thr", false, false, ["one", "two", "three"]) }
       let(:search) { Search.from_config(config) }
 
       it "is remembered" do
@@ -124,12 +129,6 @@ describe Search do
         "search.rb",
         "spec/search_spec.rb"
       ]
-    end
-
-    xit "passes input through if told to" do
-      # config = Configuration.from_inputs(["a", "b"], {passthrough: true})
-      # search = Search.from_config(config)
-      # expect(search.append_search_string("c").best_matches.map(&:choice)).to eq [
     end
   end
 

@@ -147,8 +147,8 @@ class Selecta
   class Abort < RuntimeError; end
 end
 
-class Configuration < Struct.new(:visible_choices, :initial_search, :passthrough, :choices)
-  def initialize(visible_choices, initialize, passthrough, choices)
+class Configuration < Struct.new(:visible_choices, :initial_search, :passthrough, :scrolloff, :choices)
+  def initialize(visible_choices, initialize, passthrough, scrolloff, choices)
     # Constructor is defined to force argument presence; otherwise Struct
     # defaults missing arguments to nil
     super
@@ -159,7 +159,7 @@ class Configuration < Struct.new(:visible_choices, :initial_search, :passthrough
     visible_choices = [20, screen_height - 1].min
 
     choices = massage_choices(choices)
-    Configuration.new(visible_choices, options.fetch(:search), options.fetch(:passthrough), choices)
+    Configuration.new(visible_choices, options.fetch(:search), options.fetch(:passthrough), options.fetch(:scrolloff), choices)
   end
 
   def self.default_options
@@ -190,6 +190,11 @@ class Configuration < Struct.new(:visible_choices, :initial_search, :passthrough
       options[:passthrough] = false
       opts.on("-p", "--passthrough", "Pass user input through if no choices match") do
         options[:passthrough] = true
+      end
+
+      options[:scrolloff] = false
+      opts.on("--scrolloff", "Scroll down the list of options if we scroll off the end") do
+        options[:scrolloff] = true
       end
     end
 

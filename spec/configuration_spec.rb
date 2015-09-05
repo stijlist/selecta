@@ -41,4 +41,12 @@ describe Configuration do
       end
     end
   end
+
+  describe "the --scrolloff flag" do
+    it "can be specified" do
+      config = Configuration.from_inputs(
+        [], Configuration.parse_options(["--scrolloff"]))
+      expect(config.scrolloff).to eq(true)
+    end
+  end
 end
