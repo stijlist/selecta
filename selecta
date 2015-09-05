@@ -96,9 +96,9 @@ class Selecta
 
   # Use the search and screen to process user actions until they quit.
   def ui_event_loop(search, screen, tty)
-    window_start = 0
+    rendered = nil
     while not search.done?
-      window_start = Renderer.render!(search, screen, window_start)
+      rendered = Renderer.render!(search, screen, rendered)
       search = handle_keys(search, tty)
     end
     search
@@ -528,18 +528,18 @@ class Score
 end
 
 class Renderer < Struct.new(:search)
-  def self.render!(search, screen, window_start=0)
-    rendered = Renderer.new(search).render(window_start)
+  def self.render!(search, screen, rendered)
+    rendered = Renderer.new(search).render(rendered)
     start_line = screen.height - search.config.visible_choices - 1
     screen.with_cursor_hidden do
       screen.write_lines(start_line, rendered.choices)
       screen.move_cursor(start_line, 0)
       screen.write_line(start_line, rendered.search_line)
     end
-    rendered.window_start
+    rendered
   end
 
-  def render(window_start=0)
+  def render(rendered=nil)
     search_line = "#{match_count_label} > " + search.query
 
     matches = search.best_matches
@@ -550,9 +550,10 @@ class Renderer < Struct.new(:search)
         match.to_text
       end
     end
-    window_start, matches = correct_match_count(window_start, matches)
+    window_start = rendered ? rendered.window_start : 0
+    new_window_start, matches = correct_match_count(window_start, matches)
     lines = [search_line] + matches
-    Rendered.new(window_start, lines, search_line)
+    Rendered.new(new_window_start, lines, search_line)
   end
 
   def match_count_label
