@@ -551,7 +551,12 @@ class Renderer < Struct.new(:search)
   end
 
   def correct_match_count(matches)
-    limited = matches[0, search.config.visible_choices]
+    if search.config.scrolloff
+      start_index = [0, 1 + search.index - search.config.visible_choices].max
+      limited = matches[start_index, search.config.visible_choices]
+    else
+      limited = matches[0, search.config.visible_choices]
+    end
     padded = limited + [""] * (search.config.visible_choices - limited.length)
     padded
   end

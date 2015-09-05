@@ -49,4 +49,17 @@ describe Renderer do
       Text["tw", :red, "o", :default, ""],
     ]
   end
+
+  it "renders a scrolled list of choices" do
+    config = Configuration.from_inputs(["one", "two", "three"],
+                                       Configuration.parse_options(["--scrolloff"]),
+                                       3)
+    search = Search.from_config(config).down.down
+    renderer = Renderer.new(search)
+    expect(renderer.render.choices).to eq [
+      "3 > ",
+      Text["two"],
+      Text[:inverse, "three", :reset]
+    ]
+  end
 end
