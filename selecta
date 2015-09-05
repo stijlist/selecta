@@ -96,8 +96,9 @@ class Selecta
 
   # Use the search and screen to process user actions until they quit.
   def ui_event_loop(search, screen, tty)
+    window_start = 0
     while not search.done?
-      Renderer.render!(search, screen)
+      window_start = Renderer.render!(search, screen, window_start)
       search = handle_keys(search, tty)
     end
     search
@@ -527,17 +528,18 @@ class Score
 end
 
 class Renderer < Struct.new(:search)
-  def self.render!(search, screen)
-    rendered = Renderer.new(search).render
+  def self.render!(search, screen, window_start=0)
+    rendered = Renderer.new(search).render(window_start)
     start_line = screen.height - search.config.visible_choices - 1
     screen.with_cursor_hidden do
       screen.write_lines(start_line, rendered.choices)
       screen.move_cursor(start_line, 0)
       screen.write_line(start_line, rendered.search_line)
     end
+    rendered.window_start
   end
 
-  def render
+  def render(window_start=0)
     search_line = "#{match_count_label} > " + search.query
 
     matches = search.best_matches
@@ -548,9 +550,9 @@ class Renderer < Struct.new(:search)
         match.to_text
       end
     end
-    matches = correct_match_count(matches)
+    window_start, matches = correct_match_count(window_start, matches)
     lines = [search_line] + matches
-    Rendered.new(lines, search_line)
+    Rendered.new(window_start, lines, search_line)
   end
 
   def match_count_label
@@ -560,18 +562,19 @@ class Renderer < Struct.new(:search)
     match_count.to_s.rjust(max_label_width)
   end
 
-  def correct_match_count(matches)
-    if search.config.scrolloff
-      start_index = [0, 1 + search.index - search.config.visible_choices].max
-      limited = matches[start_index, search.config.visible_choices]
-    else
-      limited = matches[0, search.config.visible_choices]
+  def correct_match_count(window_start, matches)
+    if search.index < window_start
+      window_start = search.index
     end
+    if search.index >= window_start + search.config.visible_choices
+      window_start = 1 + search.index - search.config.visible_choices
+    end
+    limited = matches[window_start, search.config.visible_choices]
     padded = limited + [""] * (search.config.visible_choices - limited.length)
-    padded
+    [window_start, padded] # TODO: should this be extracted??
   end
 
-  class Rendered < Struct.new(:choices, :search_line)
+  class Rendered < Struct.new(:window_start, :choices, :search_line)
   end
 
   private
