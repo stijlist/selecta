@@ -29,10 +29,20 @@ describe Search do
         expect(search.down.down.down.selection).to eq "two"
       end
       
-      # context "when the --scrolloff flag is set" do
-        # let(:config) { Configuration.from_inputs(["one", "two", "three"],
-                                                 # ["--scrolloff"]) }
-      # end
+      context "when the --scrolloff flag is set" do
+        config = Configuration.new(2, "", false, true, ["one", "two", "three"])
+        describe "scrolling the list" do
+          it "scrolls the list downward when scrolling past the visible choice limit" do
+            search = Search.from_config(config)
+            expect(search.down.down.selection).to eq "three"
+          end
+
+          it "loops around when reaching the end of all matches" do
+            search = Search.from_config(config)
+            expect(search.down.down.down.selection).to eq "one"
+          end
+        end
+      end
 
       describe "filtered search results" do
         it "moves up and down the list" do

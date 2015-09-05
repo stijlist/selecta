@@ -390,7 +390,7 @@ class Search
 
   def move_cursor(direction)
     if max_visible_choices > 0
-      index = (@index + direction) % max_visible_choices
+      index = (@index + direction) % (@config.scrolloff ? all_matches.count : max_visible_choices)
       merge(:index => index)
     else
       self
