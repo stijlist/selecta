@@ -26,6 +26,7 @@ KEY_CTRL_C = ?\C-c
 KEY_CTRL_N = ?\C-n
 KEY_CTRL_P = ?\C-p
 KEY_CTRL_U = ?\C-u
+KEY_CTRL_D = ?\C-d
 KEY_CTRL_H = ?\C-h
 KEY_CTRL_W = ?\C-w
 KEY_CTRL_J = ?\C-j
@@ -131,8 +132,9 @@ class Selecta
 
     when KEY_CTRL_N then search.down
     when KEY_CTRL_P then search.up
+    when KEY_CTRL_D then search.page_down
+    when KEY_CTRL_U then search.page_up
 
-    when KEY_CTRL_U then search.clear_query
     when KEY_CTRL_W then search.delete_word
     when KEY_CTRL_H, KEY_DELETE then search.backspace
 
@@ -301,6 +303,14 @@ class Search
 
   def up
     move_cursor(-1)
+  end
+
+  def page_up
+    move_cursor(-@config.visible_choices)
+  end
+
+  def page_down
+    move_cursor(@config.visible_choices)
   end
 
   def max_visible_choices
