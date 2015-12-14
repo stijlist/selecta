@@ -190,14 +190,14 @@ class Configuration < Struct.new(:visible_choices, :initial_search, :passthrough
         options[:search] = search
       end
 
-      options[:passthrough] = false
-      opts.on("-p", "--passthrough", "Pass user input through if no choices match") do
-        options[:passthrough] = true
+      options[:passthrough] = true
+      opts.on("-np", "--nopassthrough", "Don't pass user input through if no choices match") do
+        options[:passthrough] = false
       end
 
-      options[:scrolloff] = false
-      opts.on("--scrolloff", "Scroll down the list of options if we scroll off the end") do
-        options[:scrolloff] = true
+      options[:scrolloff] = true
+      opts.on("--noscrolloff", "Don't scroll down the list of options if we scroll off the end") do
+        options[:scrolloff] = false
       end
     end
 
